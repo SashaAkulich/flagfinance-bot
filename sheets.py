@@ -16,7 +16,7 @@ class GoogleSheetsManager:
         self.client = gspread.authorize(creds)
         self.sheet = self.client.open_by_key(sheet_id).sheet1
 
-    def log_lead(self, telegram_id: int, username: str, utm_ dict, visit_id: str):
+  def log_lead(self, telegram_id: int, username: str, utm_data: dict, visit_id: str):
         row = [
             telegram_id,
             username or '',
