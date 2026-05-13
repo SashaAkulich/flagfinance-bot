@@ -19,7 +19,7 @@ class FinanceBot:
                 if visit_id:
                     utm = self.storage.get_and_delete(visit_id)
                     if utm:
-                        # ✅ Пользователь с валидной меткой
+                       
                         self.sheets.log_lead(
                             telegram_id=message.from_user.id,
                             username=message.from_user.username,
@@ -38,7 +38,7 @@ class FinanceBot:
                 else:
                     print(f"ℹ️ Запуск без метки от пользователя {message.from_user.id}")
                 
-                # ✅ Записываем ВСЕХ (даже без меток)
+               
                 self.sheets.log_lead(
                     telegram_id=message.from_user.id,
                     username=message.from_user.username,
