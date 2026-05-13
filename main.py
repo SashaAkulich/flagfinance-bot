@@ -3,7 +3,9 @@ from bot import FinanceBot
 from sheets import GoogleSheetsManager
 from storage import VisitStorage
 import os
+import json
 from dotenv import load_dotenv
+from aiogram import types  
 
 load_dotenv()
 
