@@ -6,6 +6,7 @@ import os
 import json
 from dotenv import load_dotenv
 from aiogram import types  
+from aiogram import Bot, types
 
 load_dotenv()
 
@@ -26,6 +27,11 @@ bot = FinanceBot(
 async def telegram_webhook(request: Request):
     update_data = await request.json()
     update = types.Update(**update_data)
+    
+    Bot.set_current(bot_instance=bot.bot)
+    from aiogram.dispatcher import Dispatcher
+    Dispatcher.set_current(bot.dp)
+    
     await bot.dp.process_update(update)
     return {"ok": True}
 
