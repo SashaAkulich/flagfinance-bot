@@ -5,8 +5,7 @@ from storage import VisitStorage
 import os
 import json
 from dotenv import load_dotenv
-from aiogram import types  
-from aiogram import Bot, types
+from aiogram import Bot, types, Dispatcher
 
 load_dotenv()
 
@@ -29,7 +28,6 @@ async def telegram_webhook(request: Request):
     update = types.Update(**update_data)
     
     Bot.set_current(bot_instance=bot.bot)
-    from aiogram.dispatcher import Dispatcher
     Dispatcher.set_current(bot.dp)
     
     await bot.dp.process_update(update)
