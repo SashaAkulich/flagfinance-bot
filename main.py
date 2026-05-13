@@ -27,7 +27,7 @@ async def telegram_webhook(request: Request):
     update_data = await request.json()
     update = types.Update(**update_data)
     
-    Bot.set_current(bot_instance=bot.bot)
+    Bot.set_current(bot.bot)
     Dispatcher.set_current(bot.dp)
     
     await bot.dp.process_update(update)
