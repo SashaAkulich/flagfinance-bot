@@ -12,49 +12,30 @@ class FinanceBot:
         @self.dp.message_handler(commands=['start'])
         async def handle_start(message: types.Message):
             args = message.get_args()
-            
-            # Парсим параметры из start
             visit_id = None
-            utm_data = {}
             
+            # Дефолтные значения
+            utm_data = {
+                'utm_source': 'direct',
+                'utm_medium': 'direct',
+                'utm_campaign': '',
+                'utm_content': '',
+                'utm_term': ''
+            }
+
             if args:
-                # Проверяем, есть ли UTM-параметры в ссылке
-                if '&' in args or 'utm_' in args:
-                    # Разбираем как URL параметры
-                    from urllib.parse import parse_qs, urlparse
-                    parsed = urlparse(f"http://t.me/bot?start={args}")
-                    params = parse_qs(parsed.query)
-                    
-                    visit_id = params.get('start', [None])[0]
-                    utm_data = {
-                        'utm_source': params.get('utm_source', ['direct'])[0],
-                        'utm_medium': params.get('utm_medium', ['direct'])[0],
-                        'utm_campaign': params.get('utm_campaign', [''])[0],
-                        'utm_content': params.get('utm_content', [''])[0],
-                        'utm_term': params.get('utm_term', [''])[0]
-                    }
-                else:
-                    # Простой start параметр без UTM
-                    visit_id = args
-                    utm_data = {
-                        'utm_source': 'direct',
-                        'utm_medium': 'direct',
-                        'utm_campaign': '',
-                        'utm_content': '',
-                        'utm_term': ''
-                    }
-            else:
-                # Нет параметров — прямой запуск
-                utm_data = {
-                    'utm_source': 'direct',
-                    'utm_medium': 'direct',
-                    'utm_campaign': '',
-                    'utm_content': '',
-                    'utm_term': ''
-                }
-            
+                # Telegram передаёт всё после ?start= одной строкой
+                parts = args.split('&')
+                visit_id = parts[0]  # Первый элемент всегда visit_id
+                
+                # Разбираем остальные параметры
+                for part in parts[1:]:
+                    if '=' in part:
+                        key, value = part.split('=', 1)
+                        if key in utm_data:
+                            utm_data[key] = value
+
             try:
-                # Записываем в таблицу ВСЕГДА
                 self.sheets.log_lead(
                     telegram_id=message.from_user.id,
                     username=message.from_user.username,
@@ -63,10 +44,9 @@ class FinanceBot:
                 )
                 print(f"✅ Записан лид: {visit_id}, UTM: {utm_data}")
                 
-                # Ответ для пользователей с меткой
                 if visit_id and visit_id != 'direct':
                     await message.answer(
-                        "Здравствуйте! 👋\n"
+                        "Здравствуйте! \n"
                         "Наш менеджер уже получил уведомление и скоро ответит вам."
                     )
                     return
@@ -76,7 +56,6 @@ class FinanceBot:
                 import traceback
                 traceback.print_exc()
             
-            # Ответ для обычных пользователей
             await message.answer(
                 "Здравствуйте! Чем можем помочь?\n"
                 "Опишите ваш запрос, и мы свяжемся с вами."
