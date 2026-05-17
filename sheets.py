@@ -18,14 +18,15 @@ class GoogleSheetsManager:
     def log_lead(self, telegram_id: int, username: str, utm_data: dict, visit_id: str):
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
+        # СТРОГО по порядку колонок в таблице!
         self.sheet.append_row([
-            timestamp,  # ← Время в первой колонке
-            telegram_id,
-            username,
-            utm_data.get('source', ''),
-            utm_data.get('medium', ''),
-            utm_data.get('campaign', ''),
-            utm_data.get('term', ''),
-            utm_data.get('content', ''),
-            visit_id
+            telegram_id,                           # A: Telegram ID
+            f"@{username}" if username else "N/A", # B: Username
+            utm_data.get('utm_source', ''),        # C: UTM Source
+            utm_data.get('utm_medium', ''),        # D: UTM Medium
+            utm_data.get('utm_campaign', ''),      # E: UTM Campaign
+            utm_data.get('utm_term', ''),          # F: UTM Term
+            utm_data.get('utm_content', ''),       # G: UTM Content
+            visit_id,                              # H: Visit ID
+            timestamp                              # I: Timestamp
         ])
