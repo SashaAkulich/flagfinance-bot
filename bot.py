@@ -1,6 +1,7 @@
 from aiogram import Bot, Dispatcher, types
 from storage import VisitStorage
 from sheets import GoogleSheetsManager
+from urllib.parse import unquote
 
 class FinanceBot:
     def __init__(self, token: str, sheets: GoogleSheetsManager, storage: VisitStorage):
@@ -12,6 +13,10 @@ class FinanceBot:
         @self.dp.message_handler(commands=['start'])
         async def handle_start(message: types.Message):
             args = message.get_args()
+            
+            # 🔍 DEBUG: смотрим, что реально пришло
+            print(f"🔍 DEBUG: args='{args}'")
+            
             visit_id = None
             
             # Дефолтные значения
@@ -24,17 +29,25 @@ class FinanceBot:
             }
 
             if args:
-                # Telegram передаёт всё после ?start= одной строкой
-                parts = args.split('&')
-                visit_id = parts[0]  # Первый элемент всегда visit_id
+                # Telegram может передать всё одной строкой: "test_utm&utm_source=website"
+                # Или URL-кодировать: "test_utm%26utm_source%3Dwebsite"
+                decoded_args = unquote(args)
+                print(f"🔍 DEBUG: decoded='{decoded_args}'")
                 
-                # Разбираем остальные параметры
+                parts = decoded_args.split('&')
+                visit_id = parts[0]
+                print(f"🔍 DEBUG: visit_id='{visit_id}', parts={parts}")
+                
                 for part in parts[1:]:
                     if '=' in part:
                         key, value = part.split('=', 1)
+                        print(f"🔍 DEBUG: parsing '{key}={value}'")
                         if key in utm_data:
                             utm_data[key] = value
+                            print(f"🔍 DEBUG: set {key}={value}")
 
+            print(f"🔍 DEBUG: final utm_data={utm_data}")
+            
             try:
                 self.sheets.log_lead(
                     telegram_id=message.from_user.id,
@@ -46,7 +59,7 @@ class FinanceBot:
                 
                 if visit_id and visit_id != 'direct':
                     await message.answer(
-                        "Здравствуйте! \n"
+                        "Здравствуйте! 👋\n"
                         "Наш менеджер уже получил уведомление и скоро ответит вам."
                     )
                     return
