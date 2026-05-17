@@ -13,16 +13,19 @@ class GoogleSheetsManager:
         creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
         self.client = gspread.authorize(creds)
         self.sheet = self.client.open_by_key(sheet_id).sheet1
-
-    def log_lead(self, telegram_id: int, username: str, utm_data: dict, visit_id: str):
-        row = [
-            telegram_id,
-            username or '',
-            utm_data.get('utm_source', ''),
-            utm_data.get('utm_medium', ''),
-            utm_data.get('utm_campaign', ''),
-            utm_data.get('utm_term', ''),
-            utm_data.get('utm_content', ''),
-            visit_id,
-        ]
-        self.sheet.append_row(row)
+def log_lead(self, telegram_id: int, username: str, utm_data: dict, visit_id: str):
+    from datetime import datetime
+    
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    self.sheet.append_row([
+        telegram_id,
+        username,
+        utm_data.get('source', ''),
+        utm_data.get('medium', ''),
+        utm_data.get('campaign', ''),
+        utm_data.get('term', ''),
+        utm_data.get('content', ''),
+        visit_id,
+        timestamp  # ← ВАЖНО: добавляем время!
+    ])
